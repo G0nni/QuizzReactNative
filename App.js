@@ -35,6 +35,7 @@ function HomeStack() {
         headerTitleStyle: {
           color: "white",
         },
+        headerTintColor: "white",
       }}
     >
       <Stack.Screen

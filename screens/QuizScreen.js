@@ -47,6 +47,10 @@ function QuizScreen({ route }) {
 
   const renderQuestion = ({ item }) => (
     <View style={styles.questionContainer}>
+      <Text style={styles.questionText}>
+        {" "}
+        Question {currentQuestion + 1} / {quizData.questions.length}
+      </Text>
       <Text style={styles.questionText}>{item.title}</Text>
       <FlatList
         data={item.answers}
@@ -55,32 +59,6 @@ function QuizScreen({ route }) {
       />
     </View>
   );
-
-  if (currentQuestion >= quizData.questions.length) {
-    // Afficher la page de récapitulation avec le score
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Résultat</Text>
-          <Text style={styles.score}>Score: {score}</Text>
-        </View>
-        <View style={styles.resultContainer}>
-          {quizData.questions.map((question) => (
-            <View key={question.id} style={styles.questionResultContainer}>
-              <Text style={styles.questionResultText}>{question.title}</Text>
-              <Text style={styles.questionResultScore}>
-                {selectedAnswer &&
-                question.answers.find((answer) => answer.isCorrect).title ===
-                  selectedAnswer.title
-                  ? "1 point"
-                  : "0 point"}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>

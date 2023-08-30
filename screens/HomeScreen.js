@@ -62,7 +62,7 @@ function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.Textcontainer}>
-        <Text style={styles.TitleText}>Bonjour</Text>
+        <Text style={styles.TitleText}>Bonjour Demo</Text>
         <Text style={styles.subTitleText}>
           Quel QCM voudrais-tu passer aujourd'hui?
         </Text>

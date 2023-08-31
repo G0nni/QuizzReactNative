@@ -5,22 +5,34 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Alert, // Import Alert from react-native
 } from "react-native";
 
-function QuizScreen({ route }) {
+function QuizScreen({ route, navigation }) {
   const { quizData } = route.params;
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] = useState(false);
 
   const handleAnswerSelection = (answer) => {
-    setSelectedAnswer(answer);
-    if (answer.isCorrect) {
-      setScore(score + 1);
+    if (!isSubmitButtonEnabled) {
+      setSelectedAnswer(answer);
     }
-    // Passer à la question suivante
+  };
+
+  const handleValidation = () => {
+    setIsSubmitButtonEnabled(true);
+    if (selectedAnswer && selectedAnswer.isCorrect) {
+      setScore(score + 1);
+      Alert.alert("Bonne réponse !", "Vous avez gagné 1 point.");
+    } else {
+      Alert.alert("Mauvaise réponse !", "Réessayez la prochaine fois.");
+    }
+
     setTimeout(() => {
       setSelectedAnswer(null);
+      setIsSubmitButtonEnabled(false);
       if (currentQuestion < quizData.questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1);
       }
@@ -37,7 +49,7 @@ function QuizScreen({ route }) {
           : null,
       ]}
       onPress={() => handleAnswerSelection(item)}
-      disabled={selectedAnswer && selectedAnswer !== item}
+      disabled={isSubmitButtonEnabled}
     >
       <View style={styles.answerItem}>
         <Text style={styles.answerText}>{item.title}</Text>
@@ -57,8 +69,43 @@ function QuizScreen({ route }) {
         keyExtractor={(answer) => answer.title}
         renderItem={renderAnswer}
       />
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={handleValidation}
+        disabled={!selectedAnswer || isSubmitButtonEnabled}
+      >
+        <Text style={styles.submitButtonText}>Valider</Text>
+      </TouchableOpacity>
     </View>
   );
+
+  if (currentQuestion >= quizData.questions.length) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Résultat</Text>
+          <Text style={styles.score}>Score: {score}</Text>
+        </View>
+        <View style={styles.resultContainer}>
+          {quizData.questions.map((question, index) => (
+            <View key={question.id} style={styles.questionResultContainer}>
+              <Text style={styles.questionResultText}>
+                Question {index + 1}: {question.title}
+              </Text>
+              <Text style={styles.questionResultScore}>
+                {question.answers.find((answer) => answer.isCorrect).title ===
+                quizData.questions[index].answers.find(
+                  (answer) => answer === selectedAnswer
+                )
+                  ? "1 point"
+                  : "0 point"}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -71,15 +118,6 @@ function QuizScreen({ route }) {
         keyExtractor={(question) => question.id.toString()}
         renderItem={renderQuestion}
       />
-      {selectedAnswer && (
-        <View style={styles.resultContainer}>
-          {selectedAnswer.isCorrect ? (
-            <Text style={styles.resultText}>Bonne réponse !</Text>
-          ) : (
-            <Text style={styles.resultText}>Mauvaise réponse...</Text>
-          )}
-        </View>
-      )}
     </View>
   );
 }
@@ -119,38 +157,24 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
   },
-  selectedAnswerContainer: {},
-
+  selectedAnswerContainer: {
+    backgroundColor: "#e0e0e0", // Change the background color of selected answer
+  },
   answerItem: {},
   answerText: {
     fontSize: 16,
   },
-  resultContainer: {
-    marginTop: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    backgroundColor: "#f0f0f0",
+  submitButton: {
     alignSelf: "center",
+    backgroundColor: "#007bff",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginTop: 10,
   },
-  resultText: {
-    fontSize: 16,
+  submitButtonText: {
+    color: "white",
     fontWeight: "bold",
-  },
-  questionResultContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  questionResultText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  questionResultScore: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#888",
   },
 });
 
